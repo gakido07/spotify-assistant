@@ -1,4 +1,4 @@
-package kara.spotifyassistant.spotifyapiwrapper;
+package kara.spotifyassistant.apiwrappers;
 
 import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserService;
@@ -78,6 +78,7 @@ public class SpotifyApiWrapper {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/me/top/" + itemType))
                 .header("Authorization", "Bearer " + fetchAccessToken(id))
+                .GET()
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());
@@ -87,6 +88,7 @@ public class SpotifyApiWrapper {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/me/player/currently-playing"))
                 .header("Authorization", "Bearer " + fetchAccessToken(id))
+                .GET()
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());

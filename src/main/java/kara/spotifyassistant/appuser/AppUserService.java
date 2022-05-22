@@ -1,11 +1,14 @@
 package kara.spotifyassistant.appuser;
 
 import kara.spotifyassistant.exception.UserNotFound;
+import kara.spotifyassistant.security.SecurityUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,7 +22,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -33,10 +35,13 @@ public class AppUserService implements UserDetailsService {
     private String spotifyClientSecret;
 
     private AppUserRepository appUserRepository;
+    private final SecurityUtil securityUtil;
+
 
     @Autowired
-    public AppUserService (AppUserRepository appUserRepository) {
+    public AppUserService(AppUserRepository appUserRepository, SecurityUtil securityUtil) {
         this.appUserRepository = appUserRepository;
+        this.securityUtil = securityUtil;
     }
 
     @Override
@@ -60,5 +65,36 @@ public class AppUserService implements UserDetailsService {
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());
+    }
+
+    public AppUserDto registerUser(String code) throws Exception {
+        var form = new HashMap<String, String>() {{
+            put("code", code);
+            put ("redirect_uri", "http://localhost:8080/register");
+            put("grant_type", "authorization_code");
+        }};
+        String requestBody = form.entrySet()
+                .stream()
+                .map(data -> data.getKey() + "=" + URLEncoder.encode(data.getValue(), StandardCharsets.UTF_8))
+                .collect(Collectors.joining("&"));
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI("https://accounts.spotify.com/api/token"))
+                .header("Authorization", "Basic " + securityUtil.getEncodedAuthHeader())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED.toString())
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        JSONObject responseObject = new JSONObject(response.body());
+        String accessToken = responseObject.getString("access_token");
+        String refreshToken = responseObject.getString("refresh_token");
+        JSONObject profile = fetchUserSpotifyProfile(accessToken);
+        AppUser appUser = new AppUser(refreshToken, profile.get("email").toString());
+        String unhashedApiKey = appUser.getApiKey();
+        appUser.setApiKey(securityUtil.BcryptEncoder().encode(unhashedApiKey));
+        saveAppUser(appUser);
+        return new AppUserDto(appUser.getId(), unhashedApiKey);
     }
 }

@@ -22,7 +22,7 @@ public class AppUser implements UserDetails {
     private String id;
 
     @Email
-    @Indexed
+    @Indexed(unique = true)
     private String email;
 
     private String apiKey;
