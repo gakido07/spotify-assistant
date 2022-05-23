@@ -22,14 +22,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-public class ApiKeyRequestFilter extends OncePerRequestFilter {
+public class PublicKeyRequestFilter extends OncePerRequestFilter {
 
-    private final List<String> publicUrls = Arrays.asList("/auth/**", "/*", "spotify");
+    private final List<String> publicUrls = Arrays.asList("/auth/**", "/*", "spotify", "/private/**");
     private final AppUserService appUserService;
     private final SecurityUtil securityUtil;
 
     @Autowired
-    public ApiKeyRequestFilter(AppUserService appUserService, SecurityUtil securityUtil) {
+    public PublicKeyRequestFilter(AppUserService appUserService, SecurityUtil securityUtil) {
         this.appUserService = appUserService;
         this.securityUtil = securityUtil;
     }
@@ -57,7 +57,7 @@ public class ApiKeyRequestFilter extends OncePerRequestFilter {
 
             try {
                 AppUser appUser = appUserService.findUserById(clientId);
-                if (securityUtil.BcryptEncoder().matches(apiKey, appUser.getApiKey())) {
+                if (securityUtil.BcryptEncoder().matches(apiKey, appUser.getPublicKey())) {
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                             clientId,
                             null,

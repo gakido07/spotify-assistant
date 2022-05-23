@@ -2,7 +2,7 @@ package kara.spotifyassistant.security;
 
 import kara.spotifyassistant.appuser.AppUserService;
 import kara.spotifyassistant.security.auth.apikey.ApiKeyAuthenticationEntryPoint;
-import kara.spotifyassistant.security.auth.apikey.ApiKeyRequestFilter;
+import kara.spotifyassistant.security.auth.apikey.PublicKeyRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +21,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private ApiKeyAuthenticationEntryPoint keyAuthenticationEntryPoint;
 
     @Autowired
-    private ApiKeyRequestFilter keyRequestFilter;
+    private PublicKeyRequestFilter keyRequestFilter;
 
     @Autowired
     private AppUserService appUserService;

@@ -1,17 +1,13 @@
 package kara.spotifyassistant.appuser;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
+@AllArgsConstructor
 public class AppUserDto {
-
     private String clientId;
-
-    private String apiKey;
-
-    public AppUserDto(String clientId, String apiKey) {
-        this.clientId = clientId;
-        this.apiKey = apiKey;
-    }
+    private String publickKey;
+    private String privateKey;
 }

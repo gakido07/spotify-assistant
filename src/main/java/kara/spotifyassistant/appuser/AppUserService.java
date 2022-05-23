@@ -1,14 +1,12 @@
 package kara.spotifyassistant.appuser;
 
-import kara.spotifyassistant.exception.UserNotFound;
+import kara.spotifyassistant.exception.customexceptions.UserNotFound;
 import kara.spotifyassistant.security.SecurityUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -91,10 +89,12 @@ public class AppUserService implements UserDetailsService {
         String accessToken = responseObject.getString("access_token");
         String refreshToken = responseObject.getString("refresh_token");
         JSONObject profile = fetchUserSpotifyProfile(accessToken);
-        AppUser appUser = new AppUser(refreshToken, profile.get("email").toString());
-        String unhashedApiKey = appUser.getApiKey();
-        appUser.setApiKey(securityUtil.BcryptEncoder().encode(unhashedApiKey));
+        AppUser appUser = new AppUser(refreshToken, profile.get("email").toString(), profile.getString("id"));
+        String unhashedPublicKey = appUser.getPublicKey();
+        String unhashedPrivateKey = appUser.getPrivateKey();
+        appUser.setPublicKey(securityUtil.BcryptEncoder().encode(unhashedPublicKey));
+        appUser.setPrivateKey(securityUtil.BcryptEncoder().encode(unhashedPrivateKey));
         saveAppUser(appUser);
-        return new AppUserDto(appUser.getId(), unhashedApiKey);
+        return new AppUserDto(appUser.getId(), unhashedPublicKey, unhashedPrivateKey);
     }
 }

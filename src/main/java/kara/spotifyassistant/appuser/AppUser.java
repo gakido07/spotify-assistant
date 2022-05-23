@@ -25,14 +25,20 @@ public class AppUser implements UserDetails {
     @Indexed(unique = true)
     private String email;
 
-    private String apiKey;
+    private String spotifyId;
+
+    private String publicKey;
+
+    private String privateKey;
 
     private String refreshToken;
 
-    public AppUser(String refreshToken, String email) {
+    public AppUser(String refreshToken, String email, String spotifyId) {
         super();
         this.email = email;
-        this.apiKey = UUID.randomUUID().toString();
+        this.spotifyId = spotifyId;
+        this.publicKey = UUID.randomUUID().toString();
+        this.privateKey = UUID.randomUUID().toString();
         this.refreshToken = refreshToken;
     }
 
@@ -46,7 +52,7 @@ public class AppUser implements UserDetails {
 
     @Override
     public String getUsername() {
-        return id;
+        return email;
     }
 
     @Override
