@@ -1,7 +1,7 @@
 package kara.spotifyassistant.controllers;
 
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
-import kara.spotifyassistant.exception.customexceptions.LimitExceeded;
+import kara.spotifyassistant.services.TrackSuggestionService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +11,12 @@ import javax.validation.Valid;
 @RequestMapping(path = "/{id}")
 public class AssistantController {
 
-    private SpotifyApiWrapper spotifyApiWrapper;
+    private final SpotifyApiWrapper spotifyApiWrapper;
+    private final TrackSuggestionService suggestionService;
 
-    public AssistantController(SpotifyApiWrapper spotifyApiWrapper) {
+    public AssistantController(SpotifyApiWrapper spotifyApiWrapper, TrackSuggestionService suggestionService) {
         this.spotifyApiWrapper = spotifyApiWrapper;
+        this.suggestionService = suggestionService;
     }
 
     @GetMapping(value = "/top-items", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,6 +35,11 @@ public class AssistantController {
     ) throws Exception {
         System.out.println(requestBody.toString());
         return spotifyApiWrapper.createPlaylist(clientId, requestBody).toString();
+    }
+
+    @GetMapping(path = "/lol", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object lol() throws Exception {
+        return suggestionService.suggestPlaylist().toString();
     }
 
 }

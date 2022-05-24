@@ -10,7 +10,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ControllerAdvice {
 
     @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<Object> handleException(RuntimeException exception) {
+    public ResponseEntity<Object> handleRuntimeException(RuntimeException exception) {
+        return new ResponseEntity<>(
+                exception.getMessage(),
+                HttpStatus.CONFLICT
+        );
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException exception) {
         return new ResponseEntity<>(
                 exception.getMessage(),
                 HttpStatus.CONFLICT

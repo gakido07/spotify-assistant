@@ -21,6 +21,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,6 +64,10 @@ public class AppUserService implements UserDetailsService {
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());
+    }
+
+    public List<AppUser> getAllAppUsers() {
+        return appUserRepository.findAll();
     }
 
     public AppUserDto registerUser(String code) throws Exception {

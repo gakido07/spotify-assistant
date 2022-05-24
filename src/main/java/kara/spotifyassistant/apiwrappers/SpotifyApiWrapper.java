@@ -4,16 +4,14 @@ import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserService;
 import kara.spotifyassistant.config.Util;
 import kara.spotifyassistant.security.SecurityUtil;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.Max;
@@ -25,11 +23,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Component
 @Slf4j
 public class SpotifyApiWrapper {
 
@@ -81,6 +80,7 @@ public class SpotifyApiWrapper {
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         JSONObject responseBody = new JSONObject(response.body());
+        System.out.println(responseBody.getString("access_token"));
         return responseBody.getString("access_token");
     }
 
@@ -111,11 +111,6 @@ public class SpotifyApiWrapper {
 
     public JSONObject createPlaylist(String id, CreatePlaylistRequestBody body) throws Exception {
         String spotifyId = appUserSevice.findUserById(id).getSpotifyId();
-        var requestBody = new HashMap<String, Object>() {{
-            put("name", body.name);
-            put("description", body.description);
-            put("public", String.valueOf(body._public));
-        }};
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/users/" + spotifyId  + "/playlists"))
                 .header("Authorization", "Bearer " + fetchAccessToken(id))
@@ -126,20 +121,17 @@ public class SpotifyApiWrapper {
                                 .toString()
                 ))
                 .build();
+
         HttpResponse<String> response = HttpClient.newHttpClient().send(
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
-        if (response.statusCode() == 200) {
-            log.info("Playlist created for user with name" + body.name);
-        }
-        else {
-            log.error(response.body());
-        }
+
         return new JSONObject(response.body());
     }
 
     @NoArgsConstructor
+    @AllArgsConstructor
     @Getter @Setter
     public static class GetTopItemsRequestParams {
         @NotNull
