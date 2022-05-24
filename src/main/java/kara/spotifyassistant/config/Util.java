@@ -9,7 +9,6 @@ import java.util.List;
 
 public class Util {
 
-
     public static int generateRandomNumber(int min, int max) {
         return (int) ((Math.random() * (max - min) + min));
     }
@@ -48,5 +47,7 @@ public class Util {
         public String build() {
             return url.substring(0, url.length() - 1);
         }
+
+
     }
 }

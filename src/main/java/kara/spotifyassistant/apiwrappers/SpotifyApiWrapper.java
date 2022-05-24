@@ -1,5 +1,6 @@
 package kara.spotifyassistant.apiwrappers;
 
+import kara.spotifyassistant.Models.SpotifyToken;
 import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserService;
@@ -7,6 +8,7 @@ import kara.spotifyassistant.config.Util;
 import kara.spotifyassistant.security.SecurityUtil;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,10 +27,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,14 +65,20 @@ public class SpotifyApiWrapper {
         this.securityUtil = securityUtil;
     }
 
-    private HttpClient httpClientInstance = HttpClient.newHttpClient();
-
-    private JSONObject get(String url) {
-        return null;
-    }
-
-    private String fetchAccessToken(String id) throws Exception {
+    public String fetchAccessToken(String id) throws Exception {
         AppUser appUser = appUserSevice.findUserById(id);
+        if ((appUser.getAccessToken() != null) && appUser.getAccessToken().getValue().length() > 0) {
+            long diff = Math.abs(new Date().getTime() - appUser.getAccessToken().getTimeGenerated().getTime());
+
+            long duration = TimeUnit.HOURS.convert(
+                    diff,
+                    TimeUnit.MILLISECONDS
+            );
+            if (duration < 1) {
+                return appUser.getAccessToken().getValue();
+            }
+
+        }
         var form = new HashMap<String, String>() {{
             put("grant_type", "refresh_token");
             put("refresh_token", appUser.getRefreshToken());
@@ -84,6 +96,8 @@ public class SpotifyApiWrapper {
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         JSONObject responseBody = new JSONObject(response.body());
         System.out.println(responseBody.getString("access_token"));
+        appUser.setAccessToken(new SpotifyToken(responseBody.getString("access_token")));
+        appUserSevice.saveAppUser(appUser);
         return responseBody.getString("access_token");
     }
 
@@ -93,6 +107,7 @@ public class SpotifyApiWrapper {
                 .withParams("limit", Optional.ofNullable(requestParams.limit).orElse(12).toString())
                 .withParams("offset", Optional.ofNullable(requestParams.offset).orElse(0).toString())
                 .build();
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url))
                 .header("Authorization", "Bearer " + fetchAccessToken(clientId))
@@ -112,7 +127,7 @@ public class SpotifyApiWrapper {
         return new JSONObject(response.body());
     }
 
-    public JSONObject createPlaylist(String id, CreatePlaylistRequestBody body) throws Exception {
+    public String createPlaylist(String id, CreatePlaylistRequestBody body) throws Exception {
         String spotifyId = appUserSevice.findUserById(id).getSpotifyId();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/users/" + spotifyId  + "/playlists"))
@@ -128,51 +143,58 @@ public class SpotifyApiWrapper {
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
-        return new JSONObject(response.body());
+        return new JSONObject(response.body()).getString("id");
     }
 
-    public void addTracksToPlaylist(String playlistId, String id) throws Exception {
+    public void addTracksToPlaylist(String playlistId, String token) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks"))
-                .header("Authorization", "Bearer " + fetchAccessToken(id))
+                .header("Authorization", "Bearer " + token)
                 .POST(HttpRequest.BodyPublishers.ofString(
-                        new JSONObject().put("uris", "")
+                        new JSONObject().put("uris", new String[]{
+                                ""
+                                })
                                 .toString()
                 ))
                 .build();
     }
 
-    public Track loadSpotifyTrack(Track.TrackDto trackDto) throws Exception {
+    public Track loadSpotifyTrack(Track.TrackDto trackDto, String token) throws Exception {
+
         String url = new Util.UrlBuilder("https://api.spotify.com/v1/search")
-                .withParams("query", trackDto.getName() + " " + trackDto.getArtist())
+                .withParams("query", URLEncoder.encode(trackDto.getName() + " " + trackDto.getArtist(), StandardCharsets.UTF_8))
                 .withParams("type", URLEncoder.encode("track,artist", StandardCharsets.UTF_8))
                 .withParams("limit", "1")
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url))
+                .header("Authorization", "Bearer " + token)
                 .GET()
                 .build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body());
-        return null;
+        JSONArray trackJsonArray = new JSONObject(response.body())
+                .getJSONObject("tracks")
+                .getJSONArray("items");
+
+        if (trackJsonArray.length() < 1) {
+            return null;
+        }
+        JSONObject trackJson = trackJsonArray.getJSONObject(0);
+        return new Track(
+                trackJson.getString("id"),
+                trackJson.getString("name"),
+                trackJson.getJSONArray("artists")
+                        .getJSONObject(0)
+                        .getString("name")
+        );
     }
 
-//    public List<Track> loadSpotifyTrackRecords() throws Exception {
-//        String url = new Util.UrlBuilder("https://api.spotify.com/v1/search")
-//                .withParams("query", )
-//                .build();
-//
-//        HttpRequest request = HttpRequest.newBuilder()
-//                .uri(
-//                        new URI(
-//
-//                        )
-//                )
-//                .GET()
-//                .build();
-//    }
+    private String generateSpotifyId(String trackId) {
+        return "spotify:track:" + trackId;
+    }
+
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -192,6 +214,7 @@ public class SpotifyApiWrapper {
 
     @ToString
     @Getter @Setter
+    @AllArgsConstructor
     public static class CreatePlaylistRequestBody {
         @NotNull
         private String name;

@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TrackSuggestionService {
+
+    public static String SUGGESTION_PLAYLIST_NAME = "S:A Suggestions";
 
     private final SpotifyApiWrapper spotifyApiWrapper;
     private final LastFmApiWrapper lastFmApiWrapper;
@@ -38,21 +41,31 @@ public class TrackSuggestionService {
     }
 
     public Object testCron() throws Exception {
-        return null;
-    }
-
-
-    public Object suggestPlaylist() throws Exception {
         List<AppUser> users = appUserService.getAllAppUsers();
-        List<String> suggestedTracks = new ArrayList<>();
         for (AppUser user : users) {
-            List<Track.TrackDto> tracks = getSampleFromTopTracks(user);
-            analyseAndSuggestTracks(tracks, "");
+            if (user.getSuggestionPlaylistId() == null) {
+                String playlistId = spotifyApiWrapper.createPlaylist(user.getId(), new SpotifyApiWrapper.CreatePlaylistRequestBody(
+                        SUGGESTION_PLAYLIST_NAME,
+                        LocalDate.now().toString(),
+                        false
+                ));
+                user.setSuggestionPlaylistId(playlistId);
+                appUserService.saveAppUser(user);
+            }
+            suggestPlaylist(user);
         }
         return null;
     }
 
-    private void analyseAndSuggestTracks(List<Track.TrackDto> tracks, String playlist) {
+
+    public Object suggestPlaylist(AppUser user) throws Exception {
+        String token = spotifyApiWrapper.fetchAccessToken(user.getId());
+        List<Track.TrackDto> tracks = getSampleFromTopTracks(user);
+        analyseAndSuggestTracks(tracks, token , user);
+        return null;
+    }
+
+    private void analyseAndSuggestTracks(List<Track.TrackDto> tracks, String spotifyToken, AppUser appUser) {
         HttpClient client = HttpClient.newHttpClient();
         List<URI> targets = tracks.stream().map(
                 track -> {
@@ -86,8 +99,14 @@ public class TrackSuggestionService {
                                 trackJson.getJSONObject("artist").getString("name")
                         );
                         System.out.println(trackDto);
-                    }
+                        try {
+                            Track track = spotifyApiWrapper.loadSpotifyTrack(trackDto, spotifyToken);
+                            System.out.println(track);
 
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     return responseJson;
                 })
         );
@@ -96,12 +115,13 @@ public class TrackSuggestionService {
 
     private List<Track.TrackDto> getSampleFromTopTracks(AppUser appUser) throws Exception {
         List<Track.TrackDto> sampleTopTracks = new ArrayList<>();
-        JSONArray topTracks = spotifyApiWrapper.getTopItems(appUser.getId(), new SpotifyApiWrapper.GetTopItemsRequestParams(
-                SpotifyApiWrapper.ITEM_TYPE.tracks,
-                SpotifyApiWrapper.TIME_RANGE.long_term,
-                15,
-                Util.generateRandomNumber(0,30)
-        )).getJSONArray("items");
+        JSONArray topTracks = spotifyApiWrapper.getTopItems(appUser.getId(),
+                new SpotifyApiWrapper.GetTopItemsRequestParams(
+                        SpotifyApiWrapper.ITEM_TYPE.tracks,
+                        SpotifyApiWrapper.TIME_RANGE.long_term,
+                        15,
+                        Util.generateRandomNumber(0,30)
+                )).getJSONArray("items");
         topTracks.iterator().forEachRemaining(track -> {
             JSONObject jsonTrack = (JSONObject) track;
             String artist = jsonTrack.getJSONArray("artists")

@@ -39,7 +39,7 @@ public class AssistantController {
 
     @GetMapping(path = "/lol", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object lol() throws Exception {
-        return suggestionService.suggestPlaylist().toString();
+        return suggestionService.testCron();
     }
 
 }

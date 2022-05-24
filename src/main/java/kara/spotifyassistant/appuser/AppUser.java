@@ -1,5 +1,6 @@
 package kara.spotifyassistant.appuser;
 
+import kara.spotifyassistant.Models.SpotifyToken;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -33,13 +34,19 @@ public class AppUser implements UserDetails {
 
     private String refreshToken;
 
+    private SpotifyToken accessToken;
+
+    private String suggestionPlaylistId;
+
     public AppUser(String refreshToken, String email, String spotifyId) {
         super();
         this.email = email;
         this.spotifyId = spotifyId;
         this.publicKey = UUID.randomUUID().toString();
+        this.accessToken = null;
         this.privateKey = UUID.randomUUID().toString();
         this.refreshToken = refreshToken;
+        this.suggestionPlaylistId = null;
     }
 
     @Override
