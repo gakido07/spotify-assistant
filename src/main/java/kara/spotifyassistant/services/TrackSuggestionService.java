@@ -1,6 +1,6 @@
 package kara.spotifyassistant.services;
 
-import kara.spotifyassistant.Track.Track;
+import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.apiwrappers.LastFmApiWrapper;
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
 import kara.spotifyassistant.appuser.AppUser;
@@ -12,11 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -39,21 +37,23 @@ public class TrackSuggestionService {
         this.appUserService = appUserService;
     }
 
+    public Object testCron() throws Exception {
+        return null;
+    }
+
+
     public Object suggestPlaylist() throws Exception {
         List<AppUser> users = appUserService.getAllAppUsers();
         List<String> suggestedTracks = new ArrayList<>();
         for (AppUser user : users) {
             List<Track.TrackDto> tracks = getSampleFromTopTracks(user);
-            System.out.println(tracks.size());
-            System.out.println(tracks.get(0));
-            analyseAndSuggestTracks(tracks);
+            analyseAndSuggestTracks(tracks, "");
         }
         return null;
     }
 
-    private void analyseAndSuggestTracks(List<Track.TrackDto> tracks) {
+    private void analyseAndSuggestTracks(List<Track.TrackDto> tracks, String playlist) {
         HttpClient client = HttpClient.newHttpClient();
-
         List<URI> targets = tracks.stream().map(
                 track -> {
                     try {
@@ -65,17 +65,33 @@ public class TrackSuggestionService {
                     throw new IllegalArgumentException("Invalid data passed");
                 }).collect(Collectors.toList());
 
-        List<CompletableFuture<String>> futures = targets.stream().map(
+        targets.stream().forEach(
                 target -> client.sendAsync(
                         HttpRequest.newBuilder(target)
                                 .GET()
                                 .build(),
                         HttpResponse.BodyHandlers.ofString()
                 ).thenApply(response -> {
-                    System.out.println(response.body());
-                    return response.body();
+                    JSONObject responseJson = new JSONObject(response.body());
+                    JSONArray similarTracks = responseJson
+                            .getJSONObject("similartracks")
+                            .getJSONArray("track");
+                    if(similarTracks.length() == 0) {
+                        return responseJson;
+                    }
+                    for (int count = 0; count < similarTracks.length(); count++) {
+                        JSONObject trackJson = similarTracks.getJSONObject(count);
+                        Track.TrackDto trackDto = new Track.TrackDto(
+                                trackJson.getString("name"),
+                                trackJson.getJSONObject("artist").getString("name")
+                        );
+                        System.out.println(trackDto);
+                    }
+
+                    return responseJson;
                 })
-        ).collect(Collectors.toList());
+        );
+
     }
 
     private List<Track.TrackDto> getSampleFromTopTracks(AppUser appUser) throws Exception {

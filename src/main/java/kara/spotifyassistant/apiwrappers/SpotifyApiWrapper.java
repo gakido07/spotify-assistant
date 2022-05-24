@@ -1,5 +1,6 @@
 package kara.spotifyassistant.apiwrappers;
 
+import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserService;
 import kara.spotifyassistant.config.Util;
@@ -18,6 +19,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,6 +27,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -121,14 +124,55 @@ public class SpotifyApiWrapper {
                                 .toString()
                 ))
                 .build();
-
         HttpResponse<String> response = HttpClient.newHttpClient().send(
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
-
         return new JSONObject(response.body());
     }
+
+    public void addTracksToPlaylist(String playlistId, String id) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks"))
+                .header("Authorization", "Bearer " + fetchAccessToken(id))
+                .POST(HttpRequest.BodyPublishers.ofString(
+                        new JSONObject().put("uris", "")
+                                .toString()
+                ))
+                .build();
+    }
+
+    public Track loadSpotifyTrack(Track.TrackDto trackDto) throws Exception {
+        String url = new Util.UrlBuilder("https://api.spotify.com/v1/search")
+                .withParams("query", trackDto.getName() + " " + trackDto.getArtist())
+                .withParams("type", URLEncoder.encode("track,artist", StandardCharsets.UTF_8))
+                .withParams("limit", "1")
+                .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(url))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+        return null;
+    }
+
+//    public List<Track> loadSpotifyTrackRecords() throws Exception {
+//        String url = new Util.UrlBuilder("https://api.spotify.com/v1/search")
+//                .withParams("query", )
+//                .build();
+//
+//        HttpRequest request = HttpRequest.newBuilder()
+//                .uri(
+//                        new URI(
+//
+//                        )
+//                )
+//                .GET()
+//                .build();
+//    }
 
     @NoArgsConstructor
     @AllArgsConstructor

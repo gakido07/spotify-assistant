@@ -1,4 +1,4 @@
-package kara.spotifyassistant.Track;
+package kara.spotifyassistant.Models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +7,7 @@ import lombok.ToString;
 
 @AllArgsConstructor
 @Getter @Setter
+@ToString
 public class Track {
     private String id;
     private String name;

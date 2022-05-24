@@ -1,20 +1,13 @@
 package kara.spotifyassistant.apiwrappers;
 
-import kara.spotifyassistant.Track.Track;
+import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.config.Util;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
