@@ -1,5 +1,6 @@
 package kara.spotifyassistant.services;
 
+import kara.spotifyassistant.Models.Playlist;
 import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.apiwrappers.LastFmApiWrapper;
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
@@ -40,7 +41,7 @@ public class TrackSuggestionService {
         this.appUserService = appUserService;
     }
 
-    public Object testCron() throws Exception {
+    public void testCron() throws Exception {
         List<AppUser> users = appUserService.getAllAppUsers();
         for (AppUser user : users) {
             if (user.getSuggestionPlaylistId() == null) {
@@ -52,9 +53,19 @@ public class TrackSuggestionService {
                 user.setSuggestionPlaylistId(playlistId);
                 appUserService.saveAppUser(user);
             }
+            else {
+                JSONArray playlistTracks = spotifyApiWrapper.getPlaylistTracks(user.getId(), user.getSuggestionPlaylistId());
+                if (playlistTracks.length() > 0) {
+                    List<JSONObject> trackIdsJson = Util.convertJsonArrayToList(playlistTracks);
+                    List<String> trackIds = trackIdsJson
+                            .stream()
+                            .map(trackId -> trackId.getJSONObject("track").getString("id"))
+                            .collect(Collectors.toList());
+                    spotifyApiWrapper.deleteTracksFromPlaylist(user.getId(), user.getSuggestionPlaylistId(), trackIds);
+                }
+            }
             suggestPlaylist(user);
         }
-        return null;
     }
 
 
@@ -92,20 +103,25 @@ public class TrackSuggestionService {
                     if(similarTracks.length() == 0) {
                         return responseJson;
                     }
+                    List<String> trackIds = new ArrayList<>();
                     for (int count = 0; count < similarTracks.length(); count++) {
                         JSONObject trackJson = similarTracks.getJSONObject(count);
                         Track.TrackDto trackDto = new Track.TrackDto(
                                 trackJson.getString("name"),
                                 trackJson.getJSONObject("artist").getString("name")
                         );
-                        System.out.println(trackDto);
                         try {
-                            Track track = spotifyApiWrapper.loadSpotifyTrack(trackDto, spotifyToken);
-                            System.out.println(track);
-
+                            Track track = spotifyApiWrapper.loadSpotifyTrack(appUser.getId(), trackDto);
+                            trackIds.add(track.getId());
                         } catch (Exception e) {
                             e.printStackTrace();
+
                         }
+                    }
+                    try {
+                        spotifyApiWrapper.addTracksToPlaylist(appUser.getId(), appUser.getSuggestionPlaylistId(), trackIds);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                     return responseJson;
                 })

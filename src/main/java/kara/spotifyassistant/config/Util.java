@@ -21,6 +21,14 @@ public class Util {
         return picked.toArray();
     }
 
+    public static List<JSONObject> convertJsonArrayToList(JSONArray jsonArray) {
+        List<JSONObject> result = new ArrayList<>();
+        for (int count = 0; count < jsonArray.length(); count++) {
+            result.add(jsonArray.getJSONObject(count));
+        }
+        return result;
+    }
+
     public static JSONObject[] randomPickFromArray(JSONArray arr, int numberToBePicked) {
         List<JSONObject> picked = new ArrayList<>();
         for (int count = 0; count < numberToBePicked; count++) {
@@ -47,7 +55,5 @@ public class Util {
         public String build() {
             return url.substring(0, url.length() - 1);
         }
-
-
     }
 }

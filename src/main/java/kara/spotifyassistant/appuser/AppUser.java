@@ -1,5 +1,6 @@
 package kara.spotifyassistant.appuser;
 
+import kara.spotifyassistant.Models.Playlist;
 import kara.spotifyassistant.Models.SpotifyToken;
 import lombok.Getter;
 import lombok.Setter;
