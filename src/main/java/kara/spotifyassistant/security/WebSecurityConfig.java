@@ -37,9 +37,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity
                 .csrf().disable()
                 .authorizeRequests()
-                .mvcMatchers("/", "/*")
+                .mvcMatchers("/", "/auth/**", "/css/*.css")
                 .permitAll()
-                .antMatchers("/auth/**", "/spotify-auth/*")
+                .antMatchers("/", "/auth/**", "/css/*.css")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

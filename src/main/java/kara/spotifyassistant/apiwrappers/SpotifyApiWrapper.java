@@ -144,7 +144,6 @@ public class SpotifyApiWrapper {
         String url = new Util.UrlBuilder("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks")
                 .withParams("limit", "50")
                 .build();
-        System.out.println(url);
         String token = fetchAccessToken(userId);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url))

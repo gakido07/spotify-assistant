@@ -1,8 +1,8 @@
 package kara.spotifyassistant.config;
 
+import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.web.util.UriBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,28 +13,12 @@ public class Util {
         return (int) ((Math.random() * (max - min) + min));
     }
 
-    public static Object[] randomPickFromArray(Object[] arr, int numberToBePicked) {
-        List<Object> picked = new ArrayList<>();
-        for (int count = 0; count < numberToBePicked; count++) {
-            picked.add(arr[generateRandomNumber(0, arr.length - 1)]);
-        }
-        return picked.toArray();
-    }
-
     public static List<JSONObject> convertJsonArrayToList(JSONArray jsonArray) {
         List<JSONObject> result = new ArrayList<>();
         for (int count = 0; count < jsonArray.length(); count++) {
             result.add(jsonArray.getJSONObject(count));
         }
         return result;
-    }
-
-    public static JSONObject[] randomPickFromArray(JSONArray arr, int numberToBePicked) {
-        List<JSONObject> picked = new ArrayList<>();
-        for (int count = 0; count < numberToBePicked; count++) {
-            picked.add(arr.getJSONObject(generateRandomNumber(0, arr.length() - 1)));
-        }
-        return (JSONObject[]) picked.toArray();
     }
 
     public static class UrlBuilder {

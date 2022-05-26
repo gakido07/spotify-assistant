@@ -70,10 +70,10 @@ public class AppUserService implements UserDetailsService {
         return appUserRepository.findAll();
     }
 
-    public AppUserDto registerUser(String code) throws Exception {
+    public AppUserRegistrationDetails registerUser(String code) throws Exception {
         var form = new HashMap<String, String>() {{
             put("code", code);
-            put ("redirect_uri", "http://localhost:8080/register");
+            put ("redirect_uri", "http://localhost:8080/auth/register");
             put("grant_type", "authorization_code");
         }};
         String requestBody = form.entrySet()
@@ -100,6 +100,6 @@ public class AppUserService implements UserDetailsService {
         appUser.setPublicKey(securityUtil.BcryptEncoder().encode(unhashedPublicKey));
         appUser.setPrivateKey(securityUtil.BcryptEncoder().encode(unhashedPrivateKey));
         saveAppUser(appUser);
-        return new AppUserDto(appUser.getId(), unhashedPublicKey, unhashedPrivateKey);
+        return new AppUserRegistrationDetails(appUser.getId(), unhashedPublicKey, unhashedPrivateKey, appUser);
     }
 }

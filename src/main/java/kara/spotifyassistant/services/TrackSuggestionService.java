@@ -44,27 +44,31 @@ public class TrackSuggestionService {
     public void testCron() throws Exception {
         List<AppUser> users = appUserService.getAllAppUsers();
         for (AppUser user : users) {
-            if (user.getSuggestionPlaylistId() == null) {
-                String playlistId = spotifyApiWrapper.createPlaylist(user.getId(), new SpotifyApiWrapper.CreatePlaylistRequestBody(
-                        SUGGESTION_PLAYLIST_NAME,
-                        LocalDate.now().toString(),
-                        false
-                ));
-                user.setSuggestionPlaylistId(playlistId);
-                appUserService.saveAppUser(user);
-            }
-            else {
-                JSONArray playlistTracks = spotifyApiWrapper.getPlaylistTracks(user.getId(), user.getSuggestionPlaylistId());
-                if (playlistTracks.length() > 0) {
-                    List<JSONObject> trackIdsJson = Util.convertJsonArrayToList(playlistTracks);
-                    List<String> trackIds = trackIdsJson
-                            .stream()
-                            .map(trackId -> trackId.getJSONObject("track").getString("id"))
-                            .collect(Collectors.toList());
-                    spotifyApiWrapper.deleteTracksFromPlaylist(user.getId(), user.getSuggestionPlaylistId(), trackIds);
-                }
-            }
+            initializeSuggestionPlaylist(user);
             suggestPlaylist(user);
+        }
+    }
+
+    public void initializeSuggestionPlaylist(AppUser user) throws Exception {
+        if (user.getSuggestionPlaylistId() == null) {
+            String playlistId = spotifyApiWrapper.createPlaylist(user.getId(), new SpotifyApiWrapper.CreatePlaylistRequestBody(
+                    SUGGESTION_PLAYLIST_NAME,
+                    LocalDate.now().toString(),
+                    false
+            ));
+            user.setSuggestionPlaylistId(playlistId);
+            appUserService.saveAppUser(user);
+        }
+        else {
+            JSONArray playlistTracks = spotifyApiWrapper.getPlaylistTracks(user.getId(), user.getSuggestionPlaylistId());
+            if (playlistTracks.length() > 0) {
+                List<JSONObject> trackIdsJson = Util.convertJsonArrayToList(playlistTracks);
+                List<String> trackIds = trackIdsJson
+                        .stream()
+                        .map(trackId -> trackId.getJSONObject("track").getString("id"))
+                        .collect(Collectors.toList());
+                spotifyApiWrapper.deleteTracksFromPlaylist(user.getId(), user.getSuggestionPlaylistId(), trackIds);
+            }
         }
     }
 
@@ -115,7 +119,6 @@ public class TrackSuggestionService {
                             trackIds.add(track.getId());
                         } catch (Exception e) {
                             e.printStackTrace();
-
                         }
                     }
                     try {
@@ -134,7 +137,7 @@ public class TrackSuggestionService {
         JSONArray topTracks = spotifyApiWrapper.getTopItems(appUser.getId(),
                 new SpotifyApiWrapper.GetTopItemsRequestParams(
                         SpotifyApiWrapper.ITEM_TYPE.tracks,
-                        SpotifyApiWrapper.TIME_RANGE.long_term,
+                        SpotifyApiWrapper.TIME_RANGE.values()[Util.generateRandomNumber(0, SpotifyApiWrapper.TIME_RANGE.values().length)],
                         15,
                         Util.generateRandomNumber(0,30)
                 )).getJSONArray("items");

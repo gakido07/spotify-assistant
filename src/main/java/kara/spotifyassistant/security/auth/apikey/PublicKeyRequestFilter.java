@@ -24,7 +24,7 @@ import java.util.List;
 @Configuration
 public class PublicKeyRequestFilter extends OncePerRequestFilter {
 
-    private final List<String> publicUrls = Arrays.asList("/auth/**", "/*", "spotify", "/private/**");
+    private final List<String> publicUrls = Arrays.asList("/*", "/auth/**", "/private/**");
     private final AppUserService appUserService;
     private final SecurityUtil securityUtil;
 

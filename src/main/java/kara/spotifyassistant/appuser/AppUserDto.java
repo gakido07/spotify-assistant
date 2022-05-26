@@ -8,6 +8,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AppUserDto {
     private String clientId;
-    private String publickKey;
+    private String publicKey;
     private String privateKey;
 }
+

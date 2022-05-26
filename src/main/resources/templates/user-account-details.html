@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify Assistant</title>
+    <link href="../static/css/Layout.css" th:href="@{/css/main.css}" type="text/css" rel="stylesheet"  />
+    <script th:inline="javascript">
+        function copy(id) {
+            const field = document.getElementById(id);
+            navigator.clipboard.writeText(field.innerText);
+            alert(`copied ${id}`);
+        }
+    </script>
+</head>
+<body>
+<div th:each="appUserDto : ${appUserDto}" class="background reduced">
+    <header>
+        <h4>Here are your account credentials</h4>
+    </header>
+    <label>client-id</label>
+    <div
+            onclick="copy('client-id')"
+            class="detail" id="client-id"
+            th:text="${appUserDto.getClientId()}"
+    ></div>
+    <label>public key</label>
+    <div
+            onclick="copy('public-key')"
+            class="detail"
+            id="public-key"
+            th:text="${appUserDto.getPublicKey()}"
+    ></div>
+    <label>private-key</label>
+    <div
+            onclick="copy('private-key')"
+            class="detail"
+            id="private-key"
+            th:text="${appUserDto.getPrivateKey()}"
+    ></div>
+    <p>A playlist is being created for you ❤</p>
+</div>
+</body>
+</html>

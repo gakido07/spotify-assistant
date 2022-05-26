@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Spotify Assistant</title>
+    <link href="../static/css/Layout.css" th:href="@{/css/main.css}" type="text/css" rel="stylesheet"  />
     <script th:inline="javascript">
-        function test() {
-            window.alert("LMAIO");
-            console.log("hdjd");
-        }
+
     </script>
 </head>
 <body>
-<a href="/spotify-auth">
-    <h2>Hello</h2>
-</a>
-    hello
+<div class="background">
+    <div class="gradient-text">
+        <h2>Spotify Assistant</h2>
+    </div>
+    <a href="/auth/spotify-auth">
+        Register
+    </a>
+</div>
 </body>
 </html>

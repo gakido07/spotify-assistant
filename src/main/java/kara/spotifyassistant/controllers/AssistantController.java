@@ -33,7 +33,6 @@ public class AssistantController {
     public Object createPlaylistTest(@PathVariable("id") String clientId,
             @RequestBody @Valid SpotifyApiWrapper.CreatePlaylistRequestBody requestBody
     ) throws Exception {
-        System.out.println(requestBody.toString());
         return spotifyApiWrapper.createPlaylist(clientId, requestBody).toString();
     }
 

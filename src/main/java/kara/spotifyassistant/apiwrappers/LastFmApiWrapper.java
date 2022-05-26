@@ -28,7 +28,7 @@ public class LastFmApiWrapper {
                 .withParams("artist", URLEncoder.encode(track.getArtist(), StandardCharsets.UTF_8))
                 .withParams("format", "json")
                 .withParams("track", URLEncoder.encode(track.getName(), StandardCharsets.UTF_8))
-                .withParams("limit", "10")
+                .withParams("limit", "15")
                 .withParams("api_key", lastFmApiKey)
                 .build();
     }
