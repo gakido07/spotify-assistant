@@ -1,1 +1,1 @@
-web: java -Xss1m -jar target/kara/SpotifyAssistantApplication
+web: java -Xss1m -jar target/classes
