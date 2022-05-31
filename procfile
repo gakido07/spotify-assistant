@@ -1,0 +1,1 @@
+web: java -Xss1m -jar target/myapp.jar
