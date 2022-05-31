@@ -97,6 +97,7 @@ label {
 .main-text h2 {
   letter-spacing: 7px;
   font-size: 3rem;
+  white-space: nowrap;
 }
 
 .error {
@@ -122,8 +123,18 @@ img {
   height: 5rem;
 }
 
-@media (max-width: 700px) {
+@media screen and (max-width: 700px) {
   .background.docs {
     width: 70%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .main-link {
+    width: 70%;
+  }
+
+  .main-text h2 {
+    font-size: 2rem;
   }
 }
