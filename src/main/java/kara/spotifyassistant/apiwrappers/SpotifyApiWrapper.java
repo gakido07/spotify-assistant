@@ -15,27 +15,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
@@ -48,9 +40,9 @@ public class SpotifyApiWrapper {
     @Value("${spotify.client.secret}")
     private String spotifyClientSecret;
 
-    private AppUserService appUserSevice;
+    private final AppUserService appUserSevice;
 
-    private SecurityUtil securityUtil;
+    private final SecurityUtil securityUtil;
 
     public enum ITEM_TYPE {
         artists, tracks
@@ -75,7 +67,7 @@ public class SpotifyApiWrapper {
         }
         var form = new HashMap<String, String>() {{
             put("grant_type", "refresh_token");
-            put("refresh_token", appUser.getRefreshToken());
+            put("refresh_token", securityUtil.decrypt(appUser.getRefreshToken()));
         }};
         String requestBody = form.entrySet()
                 .stream()
@@ -89,7 +81,6 @@ public class SpotifyApiWrapper {
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         JSONObject responseBody = new JSONObject(response.body());
-        System.out.println(responseBody.getString("access_token"));
         appUser.setAccessToken(new SpotifyToken(responseBody.getString("access_token")));
         appUserSevice.saveAppUser(appUser);
         return responseBody.getString("access_token");
@@ -160,7 +151,6 @@ public class SpotifyApiWrapper {
         List<JSONObject> spotifyItemIds = trackIds.stream()
                 .map(trackId -> new JSONObject().put("uri", generateSpotifyId(trackId)))
                 .collect(Collectors.toList());
-        spotifyItemIds.forEach(item -> System.out.println(item.toString()));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks"))
@@ -171,12 +161,10 @@ public class SpotifyApiWrapper {
                         )
                 ).build();
 
-        HttpResponse<String> response = HttpClient.newHttpClient().send(
+        HttpClient.newHttpClient().send(
                 request,
                 HttpResponse.BodyHandlers.ofString()
         );
-        System.out.println(response.statusCode());
-        System.out.println(response.body());
     }
 
     public void addTracksToPlaylist(String id, String playlistId, List<String> trackIds) throws Exception {
@@ -195,7 +183,7 @@ public class SpotifyApiWrapper {
                         )
                 )
                 .build();
-        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     public Track loadSpotifyTrack(String userId, Track.TrackDto trackDto) throws Exception {
@@ -232,15 +220,6 @@ public class SpotifyApiWrapper {
 
     private String generateSpotifyId(String trackId) {
         return "spotify:track:" + trackId;
-    }
-
-    @ToString
-    private class SpotifyItemId {
-        String uri;
-
-        public SpotifyItemId(String uri) {
-            this.uri = generateSpotifyId(uri);
-        }
     }
 
 

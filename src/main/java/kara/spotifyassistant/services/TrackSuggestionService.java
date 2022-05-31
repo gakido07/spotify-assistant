@@ -1,12 +1,12 @@
 package kara.spotifyassistant.services;
 
-import kara.spotifyassistant.Models.Playlist;
 import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.apiwrappers.LastFmApiWrapper;
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
 import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserService;
 import kara.spotifyassistant.config.Util;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -19,14 +19,13 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TrackSuggestionService {
 
     public static String SUGGESTION_PLAYLIST_NAME = "S:A Suggestions";
-
     private final SpotifyApiWrapper spotifyApiWrapper;
     private final LastFmApiWrapper lastFmApiWrapper;
     private final AppUserService appUserService;
@@ -39,14 +38,6 @@ public class TrackSuggestionService {
         this.spotifyApiWrapper = spotifyApiWrapper;
         this.lastFmApiWrapper = lastFmApiWrapper;
         this.appUserService = appUserService;
-    }
-
-    public void testCron() throws Exception {
-        List<AppUser> users = appUserService.getAllAppUsers();
-        for (AppUser user : users) {
-            initializeSuggestionPlaylist(user);
-            suggestPlaylist(user);
-        }
     }
 
     public void initializeSuggestionPlaylist(AppUser user) throws Exception {
@@ -72,15 +63,12 @@ public class TrackSuggestionService {
         }
     }
 
-
-    public Object suggestPlaylist(AppUser user) throws Exception {
-        String token = spotifyApiWrapper.fetchAccessToken(user.getId());
+    public void suggestPlaylist(AppUser user) throws Exception {
         List<Track.TrackDto> tracks = getSampleFromTopTracks(user);
-        analyseAndSuggestTracks(tracks, token , user);
-        return null;
+        analyseAndSuggestTracks(tracks, user);
     }
 
-    private void analyseAndSuggestTracks(List<Track.TrackDto> tracks, String spotifyToken, AppUser appUser) {
+    private void analyseAndSuggestTracks(List<Track.TrackDto> tracks, AppUser appUser) {
         HttpClient client = HttpClient.newHttpClient();
         List<URI> targets = tracks.stream().map(
                 track -> {
@@ -93,7 +81,7 @@ public class TrackSuggestionService {
                     throw new IllegalArgumentException("Invalid data passed");
                 }).collect(Collectors.toList());
 
-        targets.stream().forEach(
+        targets.forEach(
                 target -> client.sendAsync(
                         HttpRequest.newBuilder(target)
                                 .GET()
@@ -118,6 +106,7 @@ public class TrackSuggestionService {
                             Track track = spotifyApiWrapper.loadSpotifyTrack(appUser.getId(), trackDto);
                             trackIds.add(track.getId());
                         } catch (Exception e) {
+                            log.error("Track " + trackDto.getName() + "not found");
                             e.printStackTrace();
                         }
                     }

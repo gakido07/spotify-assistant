@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Spotify Assistant</title>
-    <link href="../static/css/Layout.css" th:href="@{/css/main.css}" type="text/css" rel="stylesheet"  />
+    <link href="../static/css/main.css" th:href="@{/css/main.css}" type="text/css" rel="stylesheet"  />
     <script th:inline="javascript">
 
     </script>
 </head>
 <body>
 <div class="background">
-    <div class="gradient-text">
+    <div class="main-text">
         <h2>Spotify Assistant</h2>
     </div>
-    <a href="/auth/spotify-auth">
+    <p></p>
+    <a class="main-link" href="/auth/spotify-auth">
         Register
+    </a>
+    <a class="main-link" href="/public/docs">
+        Documentation
     </a>
 </div>
 </body>

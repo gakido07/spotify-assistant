@@ -6,7 +6,6 @@ import kara.spotifyassistant.security.SecurityUtil;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -24,7 +23,7 @@ import java.util.List;
 @Configuration
 public class PublicKeyRequestFilter extends OncePerRequestFilter {
 
-    private final List<String> publicUrls = Arrays.asList("/*", "/auth/**", "/private/**");
+    private final List<String> publicUrls = Arrays.asList("/", "/public/**", "/auth/**", "/private/**", "/css/*.css");
     private final AppUserService appUserService;
     private final SecurityUtil securityUtil;
 

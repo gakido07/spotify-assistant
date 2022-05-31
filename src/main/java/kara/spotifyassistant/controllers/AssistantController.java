@@ -1,6 +1,7 @@
 package kara.spotifyassistant.controllers;
 
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
+import kara.spotifyassistant.security.SecurityUtil;
 import kara.spotifyassistant.services.TrackSuggestionService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +14,12 @@ public class AssistantController {
 
     private final SpotifyApiWrapper spotifyApiWrapper;
     private final TrackSuggestionService suggestionService;
+    private final SecurityUtil securityUtil;
 
-    public AssistantController(SpotifyApiWrapper spotifyApiWrapper, TrackSuggestionService suggestionService) {
+    public AssistantController(SpotifyApiWrapper spotifyApiWrapper, TrackSuggestionService suggestionService, SecurityUtil securityUtil) {
         this.spotifyApiWrapper = spotifyApiWrapper;
         this.suggestionService = suggestionService;
+        this.securityUtil = securityUtil;
     }
 
     @GetMapping(value = "/top-items", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -33,12 +36,12 @@ public class AssistantController {
     public Object createPlaylistTest(@PathVariable("id") String clientId,
             @RequestBody @Valid SpotifyApiWrapper.CreatePlaylistRequestBody requestBody
     ) throws Exception {
-        return spotifyApiWrapper.createPlaylist(clientId, requestBody).toString();
+        return spotifyApiWrapper.createPlaylist(clientId, requestBody);
     }
 
     @GetMapping(path = "/lol", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object lol() throws Exception {
-        suggestionService.testCron();
+//        suggestionService.testCron();
         return "lol";
     }
 

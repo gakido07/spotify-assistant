@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify Assistant</title>
+    <link href="../static/css/main.css" th:href="@{/css/main.css}" type="text/css" rel="stylesheet"  />
+</head>
+<body>
+<div class="background docs">
+    <header>
+        <h2>
+            SPOTIFY ASSISTANT
+        </h2>
+    </header>
+    <header>
+        <h3>GETTING STARTED</h3>
+    </header>
+    <article>
+        <h4>1. AUTHORIZATION</h4>
+        <p>Spotify assistant needs to be granted permissions to perform it's actions</p>
+        <p>Simply navigate to this url <a href="#">hello</a></p>
+        <p>You'll be shown all the actions the bot is allowed to perform on your spotify account. Give it a read and click agree.</a></p>
+        <p>You will be presented with the following credentials: clientId, publicKey, privatekey. Note, your public and private Keys are hashed, you can only view them after sign up</p>
+    </article>
+    <article>
+        <h4>2. TRACK SUGGESTIONS</h4>
+        <p>Once sign up is completed, a playlist is created for you titled "S:A Suggestions"</p>
+        <p>This playlist in two weeks intervals by automatically scans your listening activity and suggesting tracks using last fm's API</p>
+    </article>
+    <article>
+        <h4>3. TOP ARTISTS AND TRACKS</h4>
+        <p>To pull listening statistics from, you'll need a GET request to the top-items endpoint with your public key as an authorization header</p>
+        <pre>
+        <code>
+          <div class="token-line">
+            <span class="token function">curl</span>
+            <span class="token">{{baseUrl}}/{{clientId}}/top-items</span>
+          </div>
+          <div class="token-line">
+            <span class="token">-H</span>
+            <span class="token string">"Authorization: Bearer {{publicKey}}"</span>
+          </div>
+          <div class="token-line">
+            <span class="token">-H</span>
+            <span class="token string">"Content-Type: application/json"</span>
+          </div>
+          <div class="token-line">
+            <span class="token">-X</span>
+            <span class="token string">GET</span>
+          </div>
+        </code>
+      </pre>
+    </article>
+</div>
+</body>
+</html>

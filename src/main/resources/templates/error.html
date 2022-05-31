@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify Assistant</title>
+    <link href="../static/css/main.css" th:href="@{/css/main.css}" type="text/css" rel="stylesheet"  />
+</head>
+<body>
+<div th:each="message : ${message}" class="background reduced">
+    <div class="error" th:text="${message}"></div>
+</div>
+</body>
+</html>

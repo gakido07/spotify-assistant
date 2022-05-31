@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class AppUserRegistrationDetails extends AppUserDto {
-    private AppUser appUser;
+    private final AppUser appUser;
 
     public AppUserRegistrationDetails(String clientId, String publicKey, String privateKey, AppUser appUser) {
         super(clientId, publicKey, privateKey);

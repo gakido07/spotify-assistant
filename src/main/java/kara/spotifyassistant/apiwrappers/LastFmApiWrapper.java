@@ -17,7 +17,7 @@ public class LastFmApiWrapper {
     private String lastFmApiKey;
 
     private enum Method  {
-            track
+        track
     }
 
     public String buildUrlForGettingSimilarTracks(Track.TrackDto track) {

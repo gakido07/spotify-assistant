@@ -33,7 +33,10 @@ public class AppUserService implements UserDetailsService {
     @Value("${spotify.client.secret}")
     private String spotifyClientSecret;
 
-    private AppUserRepository appUserRepository;
+    @Value("${spotify.redirect.uri}")
+    private String spotifyRedirectUri;
+
+    private final AppUserRepository appUserRepository;
     private final SecurityUtil securityUtil;
 
 
@@ -73,7 +76,7 @@ public class AppUserService implements UserDetailsService {
     public AppUserRegistrationDetails registerUser(String code) throws Exception {
         var form = new HashMap<String, String>() {{
             put("code", code);
-            put ("redirect_uri", "http://localhost:8080/auth/register");
+            put ("redirect_uri", spotifyRedirectUri);
             put("grant_type", "authorization_code");
         }};
         String requestBody = form.entrySet()
@@ -92,7 +95,9 @@ public class AppUserService implements UserDetailsService {
 
         JSONObject responseObject = new JSONObject(response.body());
         String accessToken = responseObject.getString("access_token");
-        String refreshToken = responseObject.getString("refresh_token");
+        String refreshToken = securityUtil.encrypt(
+                responseObject.getString("refresh_token")
+        );
         JSONObject profile = fetchUserSpotifyProfile(accessToken);
         AppUser appUser = new AppUser(refreshToken, profile.get("email").toString(), profile.getString("id"));
         String unhashedPublicKey = appUser.getPublicKey();
