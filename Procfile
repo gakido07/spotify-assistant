@@ -1,1 +1,0 @@
-web: java -Xss1m -jar target/classes
