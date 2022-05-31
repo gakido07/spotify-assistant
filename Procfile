@@ -1,0 +1,1 @@
+web: java -Xss4m -jar target/myapp.jar
