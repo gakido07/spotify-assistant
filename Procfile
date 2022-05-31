@@ -1,1 +1,1 @@
-web: java -Xss4m -jar target/myapp.jar
+web: java -Xss4m -jar target/spotify-assistant.jar
