@@ -127,7 +127,7 @@ public class TrackSuggestionService {
                 new SpotifyApiWrapper.GetTopItemsRequestParams(
                         SpotifyApiWrapper.ITEM_TYPE.tracks,
                         SpotifyApiWrapper.TIME_RANGE.values()[Util.generateRandomNumber(0, SpotifyApiWrapper.TIME_RANGE.values().length)],
-                        15,
+                        7,
                         Util.generateRandomNumber(0,30)
                 )).getJSONArray("items");
         topTracks.iterator().forEachRemaining(track -> {
