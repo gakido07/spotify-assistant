@@ -1,1 +1,1 @@
-web: java -Xss4m -jar target/spotify-assistant.jar
+web: java -Xss1m -jar target/kara/SpotifyAssistantApplication
