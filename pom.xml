@@ -14,7 +14,7 @@
 	<name>spotify-assistant</name>
 	<description>My personal spotify bot</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>18</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
