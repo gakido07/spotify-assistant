@@ -26,7 +26,8 @@ pre {
   min-height: 5rem;
   padding: 4%;
   height: fit-content;
-  white-space: normal;
+  white-space: nowrap;
+  overflow: scroll;
 }
 .token-line {
   display: flex;
@@ -38,6 +39,7 @@ pre {
 .token-line .token.function {
   color: rgb(130, 170, 255);
 }
+
 .token-line .token.string {
   color: rgb(173, 219, 103);
 }
@@ -132,6 +134,10 @@ img {
 @media screen and (max-width: 480px) {
   .main-link {
     width: 70%;
+  }
+
+  .background.docs {
+    width: 90%;
   }
 
   .main-text h2 {
