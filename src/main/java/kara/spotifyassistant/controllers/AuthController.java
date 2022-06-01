@@ -1,6 +1,5 @@
 package kara.spotifyassistant.controllers;
 
-import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserRegistrationDetails;
 import kara.spotifyassistant.appuser.AppUserService;
 import kara.spotifyassistant.config.CustomSpringEventPublisher;
@@ -25,13 +24,11 @@ public class AuthController {
     @Value("${spotify.redirect.uri}")
     private String spotifyRedirectUri;
     private final AppUserService appUserService;
-    private final TrackSuggestionService suggestionService;
     private final CustomSpringEventPublisher eventPublisher;
 
     @Autowired
     public AuthController(AppUserService appUserService, TrackSuggestionService suggestionService, CustomSpringEventPublisher eventPublisher) {
         this.appUserService = appUserService;
-        this.suggestionService = suggestionService;
         this.eventPublisher = eventPublisher;
     }
 
