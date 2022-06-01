@@ -7,6 +7,7 @@ import kara.spotifyassistant.config.CustomSpringEventPublisher;
 import kara.spotifyassistant.events.ApiEvent;
 import kara.spotifyassistant.services.TrackSuggestionService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -40,7 +41,7 @@ public class AuthController {
                 +
                 "https://accounts.spotify.com/en/authorize?response_type=code&client_id="
                 + spotifyClientId
-                + "&scope=user-read-private%20user-top-read%20user-read-email%20playlist-modify-private%20playlist-read-private%20playlist-modify-public%20user-read-playback-state%20user-library-read&redirect_uri=" + spotifyRedirectUri + "&state=efrtyubnghjikopg"
+                + "&scope=user-read-private%20user-top-read%20user-read-email%20playlist-modify-private%20playlist-read-private%20playlist-modify-public%20user-read-playback-state%20user-library-read&redirect_uri=" + spotifyRedirectUri + "&state=" + RandomStringUtils.random(16)
         );
     }
 
