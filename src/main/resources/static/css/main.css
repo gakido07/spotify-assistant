@@ -27,7 +27,7 @@ pre {
   padding: 4%;
   height: fit-content;
   white-space: nowrap;
-  overflow: scroll;
+  overflow-x: scroll;
 }
 .token-line {
   display: flex;
@@ -60,6 +60,7 @@ p {
 .background.reduced {
   width: 30%;
 }
+
 
 label {
   font-size: 1rem;
@@ -129,6 +130,10 @@ img {
   .background.docs {
     width: 70%;
   }
+
+  .background.reduced {
+    width: 70%;
+  }
 }
 
 @media screen and (max-width: 480px) {
@@ -138,6 +143,10 @@ img {
 
   .background.docs {
     width: 90%;
+  }
+
+  .background.reduced {
+    width: 80%;
   }
 
   .main-text h2 {
