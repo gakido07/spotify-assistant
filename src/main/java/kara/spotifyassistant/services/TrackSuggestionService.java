@@ -42,11 +42,14 @@ public class TrackSuggestionService {
 
     public void initializeSuggestionPlaylist(AppUser user) throws Exception {
         if (user.getSuggestionPlaylistId() == null) {
-            String playlistId = spotifyApiWrapper.createPlaylist(user.getId(), new SpotifyApiWrapper.CreatePlaylistRequestBody(
-                    SUGGESTION_PLAYLIST_NAME,
-                    LocalDate.now().toString(),
-                    false
-            ));
+            String playlistId = spotifyApiWrapper.createPlaylist(
+                    user.getId(),
+                    new SpotifyApiWrapper.CreatePlaylistRequestBody(
+                            SUGGESTION_PLAYLIST_NAME,
+                            LocalDate.now().toString(),
+                            false
+                    )
+            );
             user.setSuggestionPlaylistId(playlistId);
             appUserService.saveAppUser(user);
         }
