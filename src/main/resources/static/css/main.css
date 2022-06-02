@@ -69,6 +69,10 @@ label {
   margin-bottom: 0.7rem;
 }
 
+article {
+  width: 100%;
+}
+
 .detail {
   background-color: gray;
   width: 100%;
