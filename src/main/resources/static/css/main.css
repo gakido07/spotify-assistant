@@ -19,6 +19,11 @@ body {
   margin-bottom: 1rem;
 }
 
+.disclaimer {
+  text-align: center;
+  width: 100%;
+}
+
 pre {
   background-color: gray;
   border-radius: 8px;

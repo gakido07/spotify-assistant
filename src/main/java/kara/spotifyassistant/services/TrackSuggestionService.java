@@ -121,7 +121,6 @@ public class TrackSuggestionService {
                     return responseJson;
                 })
         );
-
     }
 
     private List<Track.TrackDto> getSampleFromTopTracks(AppUser appUser) throws Exception {
@@ -131,7 +130,7 @@ public class TrackSuggestionService {
                         SpotifyApiWrapper.ITEM_TYPE.tracks,
                         SpotifyApiWrapper.TIME_RANGE.values()[Util.generateRandomNumber(0, SpotifyApiWrapper.TIME_RANGE.values().length)],
                         7,
-                        Util.generateRandomNumber(0,30)
+                        Util.generateRandomNumber(0,15)
                 )).getJSONArray("items");
         topTracks.iterator().forEachRemaining(track -> {
             JSONObject jsonTrack = (JSONObject) track;

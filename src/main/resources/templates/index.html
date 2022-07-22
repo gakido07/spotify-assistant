@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>Spotify Assistant</title>
-    <link href="../static/css/main.css" th:href="@{/css/main.css}" type="text/css" rel="stylesheet"  />
-    <script th:inline="javascript">
-
-    </script>
-</head>
-<body>
-<div class="background">
-    <div class="main-text">
+    <link
+      href="../static/css/main.css"
+      th:href="@{/css/main.css}"
+      type="text/css"
+      rel="stylesheet"
+    />
+    <script th:inline="javascript"></script>
+  </head>
+  <body>
+    <div class="background">
+      <div class="main-text">
         <h2>Spotify Assistant</h2>
+      </div>
+      <a class="main-link" href="/auth/spotify-auth"> Register </a>
+      <a class="main-link" href="/public/docs"> Documentation </a>
+      <p class="disclaimer">
+        Registration is currently unavailable to the public as this spotify
+        application is in development mode.
+      </p>
     </div>
-    <p></p>
-    <a class="main-link" href="/auth/spotify-auth">
-        Register
-    </a>
-    <a class="main-link" href="/public/docs">
-        Documentation
-    </a>
-</div>
-</body>
+  </body>
 </html>

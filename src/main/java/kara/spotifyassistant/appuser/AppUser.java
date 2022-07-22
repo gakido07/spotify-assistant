@@ -22,21 +22,14 @@ public class AppUser implements UserDetails {
 
     @Id
     private String id;
-
     @Email
     @Indexed(unique = true)
     private String email;
-
     private String spotifyId;
-
     private String publicKey;
-
     private String privateKey;
-
     private String refreshToken;
-
     private SpotifyToken accessToken;
-
     private String suggestionPlaylistId;
 
     public AppUser(String refreshToken, String email, String spotifyId) {
