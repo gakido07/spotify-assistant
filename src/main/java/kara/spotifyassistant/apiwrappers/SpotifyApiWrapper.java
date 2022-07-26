@@ -235,7 +235,7 @@ public class SpotifyApiWrapper {
         @Min(0) @Max(15)
         private Integer limit;
 
-        @Min(0) @Max(10)
+        @Min(0) @Max(49)
         private Integer offset;
     }
 
