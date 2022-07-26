@@ -17,7 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(path = "/auth")
-@CrossOrigin(origins = {"https://qr-code-generator.netlify.app", "http://localhost:3000/"})
+@CrossOrigin(origins = {"https://qr-code-generator.netlify.app", "http://localhost:3000/", "https://kara-spotify-assistant.herokuapp.com/"})
 @Slf4j
 public class AuthController {
 
