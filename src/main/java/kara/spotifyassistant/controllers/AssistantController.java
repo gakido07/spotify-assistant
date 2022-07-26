@@ -11,7 +11,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/{id}")
-@CrossOrigin(origins = {"https://qr-code-generator.netlify.app", "http://localhost:3000/", "https://kara-spotify-assistant.herokuapp.com/"})
+@CrossOrigin(origins = {"https://qr-code-generator.netlify.app", "http://localhost:3000/"})
 public class AssistantController {
 
     private final SpotifyApiWrapper spotifyApiWrapper;
