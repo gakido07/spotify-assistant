@@ -3,6 +3,7 @@ package kara.spotifyassistant.controllers;
 import kara.spotifyassistant.appuser.AppUserRegistrationDetails;
 import kara.spotifyassistant.appuser.AppUserService;
 import kara.spotifyassistant.config.CustomSpringEventPublisher;
+import kara.spotifyassistant.config.Util;
 import kara.spotifyassistant.events.ApiEvent;
 import kara.spotifyassistant.services.TrackSuggestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(path = "/auth")
+@CrossOrigin(origins = {"https://qr-code-generator.netlify.app", "http://localhost:3000/"})
 @Slf4j
 public class AuthController {
 
