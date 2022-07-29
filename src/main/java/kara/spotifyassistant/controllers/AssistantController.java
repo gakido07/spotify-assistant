@@ -11,7 +11,6 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/{id}")
-@CrossOrigin()
 public class AssistantController {
 
     private final SpotifyApiWrapper spotifyApiWrapper;

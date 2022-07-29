@@ -17,7 +17,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping(path = "/auth")
-@CrossOrigin(origins = "/**")
 @Slf4j
 public class AuthController {
 
