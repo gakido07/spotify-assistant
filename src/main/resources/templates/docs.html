@@ -39,7 +39,7 @@
         <code>
           <div class="token-line">
             <span class="token function">curl</span>
-            <span class="token">{{baseUrl}}/{{clientId}}/top-items</span>
+            <span class="token">{{baseUrl}}/{{clientId}}/top-items?</span>
           </div>
           <div class="token-line">
             <span class="token">-H</span>
@@ -55,6 +55,27 @@
           </div>
         </code>
       </pre>
+      <table class="param-table">
+        <tr>
+          <th>Parameters</th>
+        </tr>
+        <tr>
+          <th>itemType</th>
+          <th>type of item to be retrieved = ["tracks", "artists"]</th>
+        </tr>
+        <tr>
+          <th>timeRange</th>
+          <th>time range to retrieve items from ["medium_term", "short_term", "long_term"]</th>
+        </tr>
+        <tr>
+          <th>limit <span class="optional-tag">optional</span></th>
+          <th>number of items to retrieve, maximum is 50 and minimum is 1</th>
+        </tr>
+        <tr>
+          <th>offset <span class="optional-tag">optional</span></th>
+          <th>number of items to skip</th>
+        </tr>
+      </table>
     </article>
     <article>
       <h4>4. SPOTIFY PROFILE</h4>
