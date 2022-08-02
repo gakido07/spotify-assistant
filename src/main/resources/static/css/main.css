@@ -183,4 +183,8 @@ img {
   .main-text h2 {
     font-size: 2rem;
   }
+
+  .param-table tr th:nth-of-type(1) {
+    width: 30%;
+  }
 }
