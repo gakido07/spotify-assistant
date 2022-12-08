@@ -1,16 +1,21 @@
-package kara.spotifyassistant.appuser;
+package kara.spotifyassistant.services;
 
-import kara.spotifyassistant.exception.customexceptions.UserNotFound;
+import kara.spotifyassistant.Models.EncryptedData;
+import kara.spotifyassistant.appuser.AppUser;
+import kara.spotifyassistant.appuser.AppUserRegistrationDetails;
+import kara.spotifyassistant.appuser.AppUserRepository;
 import kara.spotifyassistant.security.SecurityUtil;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -48,11 +53,11 @@ public class AppUserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        return appUserRepository.findById(id).orElseThrow(() -> new UserNotFound("User not found"));
+        return appUserRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     public AppUser findUserById(String id) throws Exception {
-        return appUserRepository.findById(id).orElseThrow(() -> new UserNotFound("User not found"));
+        return appUserRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     public AppUser saveAppUser(AppUser appUser) {
@@ -95,7 +100,7 @@ public class AppUserService implements UserDetailsService {
 
         JSONObject responseObject = new JSONObject(response.body());
         String accessToken = responseObject.getString("access_token");
-        String refreshToken = securityUtil.encrypt(
+        EncryptedData refreshToken = securityUtil.encrypt(
                 responseObject.getString("refresh_token")
         );
         JSONObject profile = fetchUserSpotifyProfile(accessToken);

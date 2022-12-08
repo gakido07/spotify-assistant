@@ -1,10 +1,9 @@
 package kara.spotifyassistant.controllers;
 
+import kara.spotifyassistant.Models.UserRegisteredEvent;
 import kara.spotifyassistant.appuser.AppUserRegistrationDetails;
-import kara.spotifyassistant.appuser.AppUserService;
-import kara.spotifyassistant.config.CustomSpringEventPublisher;
-import kara.spotifyassistant.config.Util;
-import kara.spotifyassistant.events.ApiEvent;
+import kara.spotifyassistant.services.AppUserService;
+import kara.spotifyassistant.events.EventPublisher;
 import kara.spotifyassistant.services.TrackSuggestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -25,10 +24,10 @@ public class AuthController {
     @Value("${spotify.redirect.uri}")
     private String spotifyRedirectUri;
     private final AppUserService appUserService;
-    private final CustomSpringEventPublisher eventPublisher;
+    private final EventPublisher eventPublisher;
 
     @Autowired
-    public AuthController(AppUserService appUserService, TrackSuggestionService suggestionService, CustomSpringEventPublisher eventPublisher) {
+    public AuthController(AppUserService appUserService, TrackSuggestionService suggestionService, EventPublisher eventPublisher) {
         this.appUserService = appUserService;
         this.eventPublisher = eventPublisher;
     }
@@ -47,7 +46,7 @@ public class AuthController {
     public String register(@RequestParam String code, Model model) throws Exception {
         try {
             AppUserRegistrationDetails registrationDetails = appUserService.registerUser(code);
-            eventPublisher.publishCustomEvent("user.sign.up", new ApiEvent("", "sign-up", registrationDetails.getAppUser()));
+            eventPublisher.publishCustomEvent("user.sign.up", new UserRegisteredEvent(this.getClass().getSimpleName(), registrationDetails.getAppUser()));
             model.addAttribute("appUserDto", registrationDetails.getAppUserDto());
             return "user-account-details";
         }

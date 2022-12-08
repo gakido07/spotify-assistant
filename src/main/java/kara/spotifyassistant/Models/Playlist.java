@@ -11,7 +11,7 @@ public class Playlist {
     private String[] trackIds;
 
     public Playlist(String id) {
-        this.id = id;
-        this.trackIds = null;
+      this.id = id;
+      this.trackIds = null;
     }
 }

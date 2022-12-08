@@ -1,27 +1,24 @@
 package kara.spotifyassistant.exception;
 
-import org.springframework.http.HttpStatus;
+import kara.spotifyassistant.Models.ExceptionResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.Objects;
 
 @org.springframework.web.bind.annotation.ControllerAdvice
 public class ControllerAdvice {
 
-    @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<Object> handleRuntimeException(RuntimeException exception) {
+    @ExceptionHandler({HttpClientErrorException.class})
+    public ResponseEntity<Object> handleRuntimeException(HttpClientErrorException exception) {
         return new ResponseEntity<>(
-                exception.getMessage(),
-                HttpStatus.CONFLICT
+            formatExceptionResponse(Objects.requireNonNull(exception.getMessage())),
+            exception.getStatusCode()
         );
     }
 
-    @ExceptionHandler({IllegalArgumentException.class})
-    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException exception) {
-        return new ResponseEntity<>(
-                exception.getMessage(),
-                HttpStatus.CONFLICT
-        );
+    private ExceptionResponse formatExceptionResponse(String message) {
+        return new ExceptionResponse(message.substring(4));
     }
 }

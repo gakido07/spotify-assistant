@@ -22,7 +22,6 @@ public class LastFmApiWrapper {
 
     public String buildUrlForGettingSimilarTracks(Track.TrackDto track) {
         //lol @ function name
-
         return new Util.UrlBuilder("http://ws.audioscrobbler.com/2.0/")
                 .withParams("method", "track.getsimilar")
                 .withParams("artist", URLEncoder.encode(track.getArtist(), StandardCharsets.UTF_8))

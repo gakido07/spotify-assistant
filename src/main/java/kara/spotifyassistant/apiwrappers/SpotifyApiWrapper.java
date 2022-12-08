@@ -3,7 +3,7 @@ package kara.spotifyassistant.apiwrappers;
 import kara.spotifyassistant.Models.SpotifyToken;
 import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.appuser.AppUser;
-import kara.spotifyassistant.appuser.AppUserService;
+import kara.spotifyassistant.services.AppUserService;
 import kara.spotifyassistant.config.Util;
 import kara.spotifyassistant.security.SecurityUtil;
 import lombok.*;

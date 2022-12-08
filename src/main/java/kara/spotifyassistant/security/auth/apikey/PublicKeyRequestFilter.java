@@ -1,7 +1,7 @@
 package kara.spotifyassistant.security.auth.apikey;
 
 import kara.spotifyassistant.appuser.AppUser;
-import kara.spotifyassistant.appuser.AppUserService;
+import kara.spotifyassistant.services.AppUserService;
 import kara.spotifyassistant.security.SecurityUtil;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;

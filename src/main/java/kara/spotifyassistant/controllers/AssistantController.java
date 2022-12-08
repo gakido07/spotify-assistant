@@ -1,7 +1,7 @@
 package kara.spotifyassistant.controllers;
 
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
-import kara.spotifyassistant.appuser.AppUserService;
+import kara.spotifyassistant.services.AppUserService;
 import kara.spotifyassistant.security.SecurityUtil;
 import kara.spotifyassistant.services.TrackSuggestionService;
 import org.springframework.http.MediaType;
@@ -40,12 +40,5 @@ public class AssistantController {
     @GetMapping(value = "/current-track", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getCurrentlyPlayingTrack(@PathVariable("id") String clientId) throws Exception {
         return spotifyApiWrapper.getCurrentTrack(clientId).toString();
-    }
-
-    @PostMapping(path ="/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object createPlaylistTest(@PathVariable("id") String clientId,
-            @RequestBody @Valid SpotifyApiWrapper.CreatePlaylistRequestBody requestBody
-    ) throws Exception {
-        return spotifyApiWrapper.createPlaylist(clientId, requestBody);
     }
 }

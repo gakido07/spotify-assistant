@@ -11,7 +11,7 @@ import java.net.http.HttpResponse;
 @Component
 public class HttpClientInstance {
 
-    private HttpClient httpClient = HttpClient.newHttpClient();
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
 //    public JSONObject get(String url) throws Exception {
 //        HttpRequest request = HttpRequest.newBuilder()

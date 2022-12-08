@@ -4,7 +4,6 @@ import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.apiwrappers.LastFmApiWrapper;
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
 import kara.spotifyassistant.appuser.AppUser;
-import kara.spotifyassistant.appuser.AppUserService;
 import kara.spotifyassistant.config.Util;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;

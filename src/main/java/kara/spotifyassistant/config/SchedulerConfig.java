@@ -1,7 +1,7 @@
 package kara.spotifyassistant.config;
 
 import kara.spotifyassistant.appuser.AppUser;
-import kara.spotifyassistant.appuser.AppUserService;
+import kara.spotifyassistant.services.AppUserService;
 import kara.spotifyassistant.services.TrackSuggestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
