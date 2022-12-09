@@ -38,7 +38,7 @@ public class AuthController {
                 +
                 "https://accounts.spotify.com/en/authorize?response_type=code&client_id="
                 + spotifyClientId
-                + "&scope=user-read-private%20user-top-read%20user-read-email%20playlist-modify-private%20playlist-read-private%20playlist-modify-public%20user-read-playback-state%20user-library-read&redirect_uri=" + spotifyRedirectUri + "&state=" + RandomStringUtils.random(16)
+                + "&scope=user-read-private%20user-top-read%20user-read-email%20playlist-modify-private%20playlist-read-private%20playlist-modify-public%user-read-recently-played%20user-read-playback-state%20user-library-read&redirect_uri=" + spotifyRedirectUri + "&state=" + RandomStringUtils.random(16)
         );
     }
 

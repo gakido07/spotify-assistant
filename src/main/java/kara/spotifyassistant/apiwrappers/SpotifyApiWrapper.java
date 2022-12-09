@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -98,6 +99,22 @@ public class SpotifyApiWrapper {
                 .header("Authorization", "Bearer " + fetchAccessToken(clientId))
                 .GET()
                 .build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        return new JSONObject(response.body());
+    }
+
+    public JSONObject getUserRecentlyPlayed(String id, FetchRecentlyPlayedParams params) throws Exception {
+        String url = new Util.UrlBuilder("https://api.spotify.com/v1/me/player/recently-played/")
+            .withParams("after", String.valueOf(params.after))
+            .withParams("before", String.valueOf(params.before))
+            .withParams("limit", Optional.ofNullable(params.limit).orElse(12).toString())
+            .withParams("offset", Optional.ofNullable(params.offset).orElse(0).toString())
+            .build();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(new URI("https://api.spotify.com/v1/me/player/recently-played"))
+            .header("Authorization", "Bearer " + fetchAccessToken(id))
+            .GET()
+            .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());
     }
@@ -220,6 +237,33 @@ public class SpotifyApiWrapper {
 
     private String generateSpotifyId(String trackId) {
         return "spotify:track:" + trackId;
+    }
+
+    public static class FetchItemsParams {
+        @Min(0) @Max(15)
+        final Integer limit;
+
+        @Min(0) @Max(49)
+        final Integer offset;
+
+        public FetchItemsParams(Integer limit, Integer offset) {
+            this.limit = limit;
+            this.offset = offset;
+        }
+    }
+
+    public static class FetchRecentlyPlayedParams extends FetchItemsParams {
+        @Null
+        Integer after;
+
+        @Null
+        Integer before;
+
+        public FetchRecentlyPlayedParams(Integer limit, Integer offset, Integer after, Integer before) {
+            super(limit, offset);
+            this.after = after;
+            this.before = before;
+        }
     }
 
 

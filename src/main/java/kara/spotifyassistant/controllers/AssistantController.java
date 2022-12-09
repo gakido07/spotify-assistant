@@ -37,6 +37,11 @@ public class AssistantController {
         return appUserService.fetchUserSpotifyProfile(accessToken).toString();
     }
 
+    @GetMapping(path = "/recently-played", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Object getUserRecentlyPlayed(@PathVariable("id") String id, @Valid SpotifyApiWrapper.FetchRecentlyPlayedParams params) throws Exception {
+        return spotifyApiWrapper.getUserRecentlyPlayed(id, params).toString();
+    }
+
     @GetMapping(value = "/current-track", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getCurrentlyPlayingTrack(@PathVariable("id") String clientId) throws Exception {
         return spotifyApiWrapper.getCurrentTrack(clientId).toString();
