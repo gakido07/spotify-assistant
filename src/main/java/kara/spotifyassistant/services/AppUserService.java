@@ -1,6 +1,7 @@
 package kara.spotifyassistant.services;
 
 import kara.spotifyassistant.Models.EncryptedData;
+import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
 import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserRegistrationDetails;
 import kara.spotifyassistant.appuser.AppUserRepository;
@@ -44,16 +45,29 @@ public class AppUserService implements UserDetailsService {
     private final AppUserRepository appUserRepository;
     private final SecurityUtil securityUtil;
 
+    private final SpotifyApiWrapper spotifyApiWrapper;
+
 
     @Autowired
-    public AppUserService(AppUserRepository appUserRepository, SecurityUtil securityUtil) {
+    public AppUserService(AppUserRepository appUserRepository, SecurityUtil securityUtil, SpotifyApiWrapper spotifyApiWrapper) {
         this.appUserRepository = appUserRepository;
         this.securityUtil = securityUtil;
+        this.spotifyApiWrapper = spotifyApiWrapper;
     }
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         return appUserRepository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    public String getAccessToken(String id) throws Exception {
+        AppUser appUser = findUserById(id);
+        if ((appUser.getAccessToken() != null) && appUser.getAccessToken().getValue().length() > 0) {
+            if (appUser.getAccessToken().isTokenValid()) {
+                return appUser.getAccessToken().getValue();
+            }
+        }
+        return spotifyApiWrapper.fetchAccessToken(appUser.getRefreshToken());
     }
 
     public AppUser findUserById(String id) throws Exception {

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TrackSuggestionService {
 
-    public static String SUGGESTION_PLAYLIST_NAME = "S:A Suggestions";
+    public static final String SUGGESTION_PLAYLIST_NAME = "S:A Suggestions";
     private final SpotifyApiWrapper spotifyApiWrapper;
     private final LastFmApiWrapper lastFmApiWrapper;
     private final AppUserService appUserService;

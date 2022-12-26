@@ -46,7 +46,7 @@ public class PublicKeyRequestFilter extends OncePerRequestFilter {
         String apiKey = null;
 
         try {
-             apiKey = request.getHeader("Authorization").substring(7);
+             apiKey = request.getHeader("X-API-KEY");
         }
         catch (Exception e) {
             logger.error("unable to get api key");

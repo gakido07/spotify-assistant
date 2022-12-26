@@ -28,22 +28,25 @@ public class AssistantController {
 
     @GetMapping(value = "/top-items", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getTopItems(@PathVariable("id") String id, @Valid SpotifyApiWrapper.GetTopItemsRequestParams requestParams) throws Exception {
-        return spotifyApiWrapper.getTopItems(id, requestParams).toString();
+        String accessToken = appUserService.getAccessToken(id);
+        return spotifyApiWrapper.getTopItems(accessToken, requestParams).toString();
     }
 
     @GetMapping(path = "/profile", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getUserSpotifyProfile(@PathVariable("id") String id) throws Exception {
-        String accessToken = spotifyApiWrapper.fetchAccessToken(id);
+        String accessToken = appUserService.getAccessToken(id);
         return appUserService.fetchUserSpotifyProfile(accessToken).toString();
     }
 
     @GetMapping(path = "/recently-played", produces = MediaType.APPLICATION_JSON_VALUE)
     public Object getUserRecentlyPlayed(@PathVariable("id") String id, @Valid SpotifyApiWrapper.FetchRecentlyPlayedParams params) throws Exception {
-        return spotifyApiWrapper.getUserRecentlyPlayed(id, params).toString();
+        String accessToken = appUserService.getAccessToken(id);
+        return spotifyApiWrapper.getUserRecentlyPlayed(accessToken, params).toString();
     }
 
     @GetMapping(value = "/current-track", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Object getCurrentlyPlayingTrack(@PathVariable("id") String clientId) throws Exception {
-        return spotifyApiWrapper.getCurrentTrack(clientId).toString();
+    public Object getCurrentlyPlayingTrack(@PathVariable("id") String id) throws Exception {
+        String accessToken = appUserService.getAccessToken(id);
+        return spotifyApiWrapper.getCurrentTrack(accessToken).toString();
     }
 }

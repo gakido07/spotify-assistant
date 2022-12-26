@@ -1,5 +1,6 @@
 package kara.spotifyassistant.apiwrappers;
 
+import kara.spotifyassistant.Models.EncryptedData;
 import kara.spotifyassistant.Models.SpotifyToken;
 import kara.spotifyassistant.Models.Track;
 import kara.spotifyassistant.appuser.AppUser;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -41,8 +41,6 @@ public class SpotifyApiWrapper {
     @Value("${spotify.client.secret}")
     private String spotifyClientSecret;
 
-    private final AppUserService appUserSevice;
-
     private final SecurityUtil securityUtil;
 
     public enum ITEM_TYPE {
@@ -54,21 +52,14 @@ public class SpotifyApiWrapper {
     }
 
     @Autowired
-    public SpotifyApiWrapper(AppUserService appUserSevice, SecurityUtil securityUtil) {
-        this.appUserSevice = appUserSevice;
+    public SpotifyApiWrapper(SecurityUtil securityUtil) {
         this.securityUtil = securityUtil;
     }
 
-    public String fetchAccessToken(String id) throws Exception {
-        AppUser appUser = appUserSevice.findUserById(id);
-        if ((appUser.getAccessToken() != null) && appUser.getAccessToken().getValue().length() > 0) {
-            if (appUser.getAccessToken().isTokenValid()) {
-                return appUser.getAccessToken().getValue();
-            }
-        }
+    public String fetchAccessToken(EncryptedData refreshToken) throws Exception {
         var form = new HashMap<String, String>() {{
             put("grant_type", "refresh_token");
-            put("refresh_token", securityUtil.decrypt(appUser.getRefreshToken()));
+            put("refresh_token", securityUtil.decrypt(refreshToken));
         }};
         String requestBody = form.entrySet()
                 .stream()
@@ -82,12 +73,10 @@ public class SpotifyApiWrapper {
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         JSONObject responseBody = new JSONObject(response.body());
-        appUser.setAccessToken(new SpotifyToken(responseBody.getString("access_token")));
-        appUserSevice.saveAppUser(appUser);
         return responseBody.getString("access_token");
     }
 
-    public JSONObject getTopItems(String clientId, GetTopItemsRequestParams requestParams) throws Exception {
+    public JSONObject getTopItems(String accessToken, GetTopItemsRequestParams requestParams) throws Exception {
         String url = new Util.UrlBuilder("https://api.spotify.com/v1/me/top/" + requestParams.itemType)
                 .withParams("time_range", Optional.ofNullable(requestParams.timeRange).orElse(TIME_RANGE.medium_term).toString())
                 .withParams("limit", Optional.ofNullable(requestParams.limit).orElse(12).toString())
@@ -96,14 +85,14 @@ public class SpotifyApiWrapper {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url))
-                .header("Authorization", "Bearer " + fetchAccessToken(clientId))
+                .header("Authorization", "Bearer " + accessToken)
                 .GET()
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());
     }
 
-    public JSONObject getUserRecentlyPlayed(String id, FetchRecentlyPlayedParams params) throws Exception {
+    public JSONObject getUserRecentlyPlayed(String accessToken, FetchRecentlyPlayedParams params) throws Exception {
         String url = new Util.UrlBuilder("https://api.spotify.com/v1/me/player/recently-played/")
             .withParams("after", String.valueOf(params.after))
             .withParams("before", String.valueOf(params.before))
@@ -112,28 +101,27 @@ public class SpotifyApiWrapper {
             .build();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI("https://api.spotify.com/v1/me/player/recently-played"))
-            .header("Authorization", "Bearer " + fetchAccessToken(id))
+            .header("Authorization", "Bearer " + accessToken)
             .GET()
             .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());
     }
 
-    public JSONObject getCurrentTrack(String id) throws Exception {
+    public JSONObject getCurrentTrack(String accessToken) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/me/player/currently-playing"))
-                .header("Authorization", "Bearer " + fetchAccessToken(id))
+                .header("Authorization", "Bearer " + accessToken)
                 .GET()
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body());
     }
 
-    public String createPlaylist(String id, CreatePlaylistRequestBody body) throws Exception {
-        String spotifyId = appUserSevice.findUserById(id).getSpotifyId();
+    public String createPlaylist(String spotifyId, String accessToken, CreatePlaylistRequestBody body) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/users/" + spotifyId  + "/playlists"))
-                .header("Authorization", "Bearer " + fetchAccessToken(id))
+                .header("Authorization", "Bearer " + accessToken)
                 .POST(HttpRequest.BodyPublishers.ofString(
                         new JSONObject().put("name", body.name)
                                 .put("description", body.description)
@@ -148,22 +136,20 @@ public class SpotifyApiWrapper {
         return new JSONObject(response.body()).getString("id");
     }
 
-    public JSONArray getPlaylistTracks(String userId, String playlistId) throws Exception {
+    public JSONArray getPlaylistTracks(String accessToken, String playlistId) throws Exception {
         String url = new Util.UrlBuilder("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks")
                 .withParams("limit", "50")
                 .build();
-        String token = fetchAccessToken(userId);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url))
-                .header("Authorization", "Bearer " + token)
+                .header("Authorization", "Bearer " + accessToken)
                 .build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         return new JSONObject(response.body()).getJSONArray("items");
     }
 
-    public void deleteTracksFromPlaylist(String userId, String playlistId, List<String> trackIds) throws Exception {
-        String token = fetchAccessToken(userId);
+    public void deleteTracksFromPlaylist(String accessToken, String playlistId, List<String> trackIds) throws Exception {
 
         List<JSONObject> spotifyItemIds = trackIds.stream()
                 .map(trackId -> new JSONObject().put("uri", generateSpotifyId(trackId)))
@@ -171,7 +157,7 @@ public class SpotifyApiWrapper {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks"))
-                .header("Authorization", "Bearer " + token)
+                .header("Authorization", "Bearer " + accessToken)
                 .method("DELETE", HttpRequest.BodyPublishers.ofString(
                         new JSONObject().put("tracks", spotifyItemIds)
                                 .toString()
@@ -184,8 +170,7 @@ public class SpotifyApiWrapper {
         );
     }
 
-    public void addTracksToPlaylist(String id, String playlistId, List<String> trackIds) throws Exception {
-        String token = fetchAccessToken(id);
+    public void addTracksToPlaylist(String accessToken,String playlistId, List<String> trackIds) throws Exception {
         String[] trackIdsArray = trackIds
                 .stream()
                 .map(this::generateSpotifyId)
@@ -193,7 +178,7 @@ public class SpotifyApiWrapper {
                 .toArray(new String[trackIds.size()]);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks"))
-                .header("Authorization", "Bearer " + token)
+                .header("Authorization", "Bearer " + accessToken)
                 .POST(HttpRequest.BodyPublishers.ofString(
                         new JSONObject().put("uris", trackIdsArray)
                                 .toString()
@@ -203,8 +188,7 @@ public class SpotifyApiWrapper {
         HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public Track loadSpotifyTrack(String userId, Track.TrackDto trackDto) throws Exception {
-        String token = fetchAccessToken(userId);
+    public Track loadSpotifyTrack(String accessToken, Track.TrackDto trackDto) throws Exception {
         String url = new Util.UrlBuilder("https://api.spotify.com/v1/search")
                 .withParams("query", URLEncoder.encode(trackDto.getName() + " " + trackDto.getArtist(), StandardCharsets.UTF_8))
                 .withParams("type", URLEncoder.encode("track,artist", StandardCharsets.UTF_8))
@@ -213,7 +197,7 @@ public class SpotifyApiWrapper {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url))
-                .header("Authorization", "Bearer " + token)
+                .header("Authorization", "Bearer " + accessToken)
                 .GET()
                 .build();
 
@@ -253,10 +237,7 @@ public class SpotifyApiWrapper {
     }
 
     public static class FetchRecentlyPlayedParams extends FetchItemsParams {
-        @Null
         Integer after;
-
-        @Null
         Integer before;
 
         public FetchRecentlyPlayedParams(Integer limit, Integer offset, Integer after, Integer before) {

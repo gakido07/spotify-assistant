@@ -23,7 +23,6 @@ public class EventListener implements ApplicationListener<UserRegisteredEvent> {
     @SneakyThrows
     @Override
     public void onApplicationEvent(UserRegisteredEvent event) {
-        log.info("handled");
         AppUser user = event.getPayload();
         trackSuggestionService.initializeSuggestionPlaylist(user);
         trackSuggestionService.suggestPlaylist(user);
