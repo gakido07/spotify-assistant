@@ -16,10 +16,6 @@ public class LastFmApiWrapper {
     @Value("${last.fm.api.key}")
     private String lastFmApiKey;
 
-    private enum Method  {
-        track
-    }
-
     public String buildUrlForGettingSimilarTracks(Track.TrackDto track) {
         //lol @ function name
         return new Util.UrlBuilder("http://ws.audioscrobbler.com/2.0/")

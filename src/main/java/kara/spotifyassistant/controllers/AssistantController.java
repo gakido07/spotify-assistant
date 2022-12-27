@@ -2,8 +2,6 @@ package kara.spotifyassistant.controllers;
 
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
 import kara.spotifyassistant.services.AppUserService;
-import kara.spotifyassistant.security.SecurityUtil;
-import kara.spotifyassistant.services.TrackSuggestionService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,15 +12,11 @@ import javax.validation.Valid;
 public class AssistantController {
 
     private final SpotifyApiWrapper spotifyApiWrapper;
-    private final TrackSuggestionService suggestionService;
-    private final SecurityUtil securityUtil;
     private final AppUserService appUserService;
 
 
-    public AssistantController(SpotifyApiWrapper spotifyApiWrapper, TrackSuggestionService suggestionService, SecurityUtil securityUtil, AppUserService appUserService) {
+    public AssistantController(SpotifyApiWrapper spotifyApiWrapper, AppUserService appUserService) {
         this.spotifyApiWrapper = spotifyApiWrapper;
-        this.suggestionService = suggestionService;
-        this.securityUtil = securityUtil;
         this.appUserService = appUserService;
     }
 

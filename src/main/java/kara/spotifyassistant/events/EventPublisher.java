@@ -11,7 +11,7 @@ public class EventPublisher {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishCustomEvent(final String message, ApplicationEvent event) {
+    public void publishCustomEvent(ApplicationEvent event) {
         applicationEventPublisher.publishEvent(event);
     }
 }

@@ -1,10 +1,7 @@
 package kara.spotifyassistant.apiwrappers;
 
 import kara.spotifyassistant.Models.EncryptedData;
-import kara.spotifyassistant.Models.SpotifyToken;
 import kara.spotifyassistant.Models.Track;
-import kara.spotifyassistant.appuser.AppUser;
-import kara.spotifyassistant.services.AppUserService;
 import kara.spotifyassistant.config.Util;
 import kara.spotifyassistant.security.SecurityUtil;
 import lombok.*;
@@ -12,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -34,12 +30,6 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class SpotifyApiWrapper {
-
-    @Value("${spotify.client.id}")
-    private String spotifyClientId;
-
-    @Value("${spotify.client.secret}")
-    private String spotifyClientSecret;
 
     private final SecurityUtil securityUtil;
 
@@ -94,13 +84,11 @@ public class SpotifyApiWrapper {
 
     public JSONObject getUserRecentlyPlayed(String accessToken, FetchRecentlyPlayedParams params) throws Exception {
         String url = new Util.UrlBuilder("https://api.spotify.com/v1/me/player/recently-played/")
-            .withParams("after", String.valueOf(params.after))
-            .withParams("before", String.valueOf(params.before))
             .withParams("limit", Optional.ofNullable(params.limit).orElse(12).toString())
             .withParams("offset", Optional.ofNullable(params.offset).orElse(0).toString())
             .build();
         HttpRequest request = HttpRequest.newBuilder()
-            .uri(new URI("https://api.spotify.com/v1/me/player/recently-played"))
+            .uri(new URI(url))
             .header("Authorization", "Bearer " + accessToken)
             .GET()
             .build();
@@ -202,6 +190,7 @@ public class SpotifyApiWrapper {
                 .build();
 
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
         JSONArray trackJsonArray = new JSONObject(response.body())
                 .getJSONObject("tracks")
                 .getJSONArray("items");

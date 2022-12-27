@@ -4,7 +4,6 @@ import kara.spotifyassistant.Models.UserRegisteredEvent;
 import kara.spotifyassistant.appuser.AppUserRegistrationDetails;
 import kara.spotifyassistant.services.AppUserService;
 import kara.spotifyassistant.events.EventPublisher;
-import kara.spotifyassistant.services.TrackSuggestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class AuthController {
     private final EventPublisher eventPublisher;
 
     @Autowired
-    public AuthController(AppUserService appUserService, TrackSuggestionService suggestionService, EventPublisher eventPublisher) {
+    public AuthController(AppUserService appUserService, EventPublisher eventPublisher) {
         this.appUserService = appUserService;
         this.eventPublisher = eventPublisher;
     }
@@ -38,7 +37,7 @@ public class AuthController {
                 +
                 "https://accounts.spotify.com/en/authorize?response_type=code&client_id="
                 + spotifyClientId
-                + "&scope=user-read-private%20user-top-read%20user-read-email%20playlist-modify-private%20playlist-read-private%20playlist-modify-public%user-read-recently-played%20user-read-playback-state%20user-library-read&redirect_uri=" + spotifyRedirectUri + "&state=" + RandomStringUtils.random(16)
+                + "&scope=user-read-private%20user-top-read%20user-read-email%20playlist-modify-private%20playlist-read-private%20playlist-modify-public%20user-read-recently-played%20user-read-playback-state%20user-library-read&redirect_uri=" + spotifyRedirectUri + "&state=" + RandomStringUtils.random(16)
         );
     }
 
@@ -46,11 +45,12 @@ public class AuthController {
     public String register(@RequestParam String code, Model model) throws Exception {
         try {
             AppUserRegistrationDetails registrationDetails = appUserService.registerUser(code);
-            eventPublisher.publishCustomEvent("user.sign.up", new UserRegisteredEvent(this.getClass().getSimpleName(), registrationDetails.getAppUser()));
+            eventPublisher.publishCustomEvent(new UserRegisteredEvent(this.getClass().getSimpleName(), registrationDetails.getAppUser()));
             model.addAttribute("appUserDto", registrationDetails.getAppUserDto());
             return "user-account-details";
         }
         catch (Exception exception) {
+            exception.printStackTrace();
             String message = exception.getClass().getSimpleName().equals("DuplicateKeyException") ?
                     "You're already registered" : "An error occurred";
             model.addAttribute("message", message);

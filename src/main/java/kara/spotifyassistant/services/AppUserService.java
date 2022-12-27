@@ -1,6 +1,7 @@
 package kara.spotifyassistant.services;
 
 import kara.spotifyassistant.Models.EncryptedData;
+import kara.spotifyassistant.Models.SpotifyToken;
 import kara.spotifyassistant.apiwrappers.SpotifyApiWrapper;
 import kara.spotifyassistant.appuser.AppUser;
 import kara.spotifyassistant.appuser.AppUserRegistrationDetails;
@@ -33,12 +34,6 @@ import java.util.stream.Collectors;
 @Service
 public class AppUserService implements UserDetailsService {
 
-    @Value("${spotify.client.id}")
-    private String spotifyClientId;
-
-    @Value("${spotify.client.secret}")
-    private String spotifyClientSecret;
-
     @Value("${spotify.redirect.uri}")
     private String spotifyRedirectUri;
 
@@ -67,7 +62,10 @@ public class AppUserService implements UserDetailsService {
                 return appUser.getAccessToken().getValue();
             }
         }
-        return spotifyApiWrapper.fetchAccessToken(appUser.getRefreshToken());
+        String accessToken = spotifyApiWrapper.fetchAccessToken(appUser.getRefreshToken());
+        appUser.setAccessToken(new SpotifyToken(accessToken));
+        appUserRepository.save(appUser);
+        return accessToken;
     }
 
     public AppUser findUserById(String id) throws Exception {
